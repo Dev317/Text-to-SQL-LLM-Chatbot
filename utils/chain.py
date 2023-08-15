@@ -1,6 +1,7 @@
 import os
 from langchain.prompts.prompt import PromptTemplate
-from langchain.llms import VertexAI, OpenAI
+from langchain.llms import VertexAI
+from langchain.chat_models import ChatOpenAI
 from langchain.embeddings.vertexai import VertexAIEmbeddings
 from langchain.embeddings.openai import OpenAIEmbeddings
 from langchain.vectorstores import Chroma
@@ -23,7 +24,7 @@ class ConversationalChain():
             self.vector_store = self.get_vector_store(model_name)
         elif model_name == "OpenAI":
             self.embeddings = OpenAIEmbeddings(openai_api_key=kwargs.get("api_key"))
-            self.llm = OpenAI(openai_api_key=kwargs.get("api_key"))
+            self.llm = ChatOpenAI(openai_api_key=kwargs.get("api_key"))
             self.vector_store = self.get_vector_store(model_name)
         self.load_sql_to_db()
         self.chain = self.get_chain()
@@ -72,11 +73,9 @@ Standalone question:"""
 
         qa_template = """
 You're an AI assistant specializing in data analysis with Google SQL.
-When providing responses, strive to exhibit friendliness and adopt a conversational tone,
-similar to how a friend or tutor would communicate.
+When providing responses, strive to exhibit friendliness and adopt a conversational tone, similar to how a friend or tutor would communicate.
 
-When asked about your capabilities, provide a general overview of your ability to assist with data analysis tasks using Google SQL,
-instead of performing specific SQL queries.
+When asked about your capabilities, provide a general overview of your ability to assist with data analysis tasks using Google SQL, instead of performing specific SQL queries.
 
 Based on the question provided, if it pertains to data analysis or Google SQL tasks, generate SQL code that is compatible with the Google SQL environment.
 Additionally, offer a brief explanation about how you arrived at the SQL code. If the required column isn't explicitly stated in the context, suggest an alternative using available columns,
@@ -98,7 +97,7 @@ If you don't know the answer, simply state, "I'm sorry, I don't know the answer 
 
 Write your response in markdown format and code in ```sql  ```.
 
-Do use the DDL schema to generate accurate Google SQL.
+Do use the DDL schema from the question to generate accurate Google SQL. Use the correct data type for the SQL based on the schema.
 
 Question: ```{question}```
 
